@@ -403,7 +403,7 @@ const EPOCH = { year: 100, month: 11, day: 21 };
 function updateEpochInfo() {
 const epochEl = document.querySelector('.epoch-info');
 if (!epochEl) return;
-const epochDate = new Date(EPOCH.year, EPOCH.month, EPOCH.day);
+const epochDate = new Date(Date.UTC(EPOCH.year, EPOCH.month, EPOCH.day));
 const paddedYear = String(EPOCH.year).padStart(4, '0');
 const displayDate = epochDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + paddedYear;
 epochEl.innerHTML = `<strong>Epoch:</strong> Winter Solstice (${displayDate}) | Year 1, Month 1, Week 1, Day 1`;
@@ -448,7 +448,7 @@ return yearOffset + dayOfYear;
 }
 
 function toGregorianDateString(date) {
-return `${date.getFullYear().toString().padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+return `${date.getUTCFullYear().toString().padStart(4, '0')}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
 }
 
 function convertCalendar() {
@@ -502,8 +502,8 @@ dayIndex = day - 1;
 }
 
 const totalDays = calendarToDays(year, monthIndex, weekIndex, dayIndex, specialIndex);
-const epochDate = new Date(EPOCH.year, EPOCH.month, EPOCH.day);
-const gregDate = new Date(epochDate.getTime() + totalDays * MS_PER_DAY);
+const epochUtc = Date.UTC(EPOCH.year, EPOCH.month, EPOCH.day);
+const gregDate = new Date(epochUtc + totalDays * MS_PER_DAY);
 const gregorianString = toGregorianDateString(gregDate);
 
 const cal = daysToCalendar(totalDays);
@@ -546,9 +546,9 @@ document.getElementById('formattedDate').textContent = formattedString;
 }
 
 function daysSinceEpoch(gregorianDate) {
-const g2 = new Date(gregorianDate.getFullYear(), gregorianDate.getMonth(), gregorianDate.getDate());
-const e2 = new Date(EPOCH.year, EPOCH.month, EPOCH.day);
-const diffMs = g2.getTime() - e2.getTime();
+const g2 = Date.UTC(gregorianDate.getFullYear(), gregorianDate.getMonth(), gregorianDate.getDate());
+const e2 = Date.UTC(EPOCH.year, EPOCH.month, EPOCH.day);
+const diffMs = g2 - e2;
 return Math.floor(diffMs / (1000 * 60 * 60 * 24));
 }
 
@@ -615,7 +615,7 @@ alert('Invalid date. Please use numbers.');
 return;
 }
 
-const gregDate = new Date(year, month, day);
+const gregDate = new Date(Date.UTC(year, month, day));
 const days = daysSinceEpoch(gregDate);
 const cal = daysToCalendar(days);
 
