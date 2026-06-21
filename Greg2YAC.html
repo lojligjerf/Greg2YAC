@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Base-6 Calendar</title>
+<!-- PWA manifest -->
+<link rel="manifest" href="manifest.json">
+<style>
+* {
+box-sizing: border-box;
+}
+
+body {
+max-width: 700px;
+margin: 20px auto;
+padding: 10px;
+font-family: system-ui, -apple-system, sans-serif;
+background: #fff;
+color: #000;
+line-height: 1.5;
+}
+
+h1 {
+font-weight: 400;
+font-size: 1.5rem;
+margin: 0 0 4px 0;
+padding-bottom: 4px;
+border-bottom: 1px solid #ccc;
+}
+
+.epoch-info {
+font-size: 0.9rem;
+margin: 6px 0 12px 0;
+}
+
+.input-group {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+margin: 12px 0;
+}
+
+.input-group input,
+.input-group button {
+min-height: 40px;
+padding: 6px 12px;
+font-size: 1rem;
+border: 1px solid #888;
+background: #fff;
+}
+
+.input-group button {
+font-weight: 600;
+background: #eee;
+cursor: pointer;
+}
+
+.input-group button:active {
+background: #ccc;
+}
+
+.output {
+margin-top: 14px;
+padding: 10px 4px;
+border-top: 1px solid #ccc;
+display: none;
+}
+
+.output.visible {
+display: block;
+}
+
+.output .field {
+display: flex;
+justify-content: space-between;
+flex-wrap: wrap;
+gap: 2px 10px;
+padding: 4px 0;
+border-bottom: 1px solid #eee;
+}
+
+.output .field:last-child {
+border-bottom: none;
+}
+
+.output .field-highlight {
+background: #eef4fa;
+padding: 6px 8px;
+margin-top: 6px;
+font-weight: 500;
+border-bottom: none;
+}
+
+.rules {
+margin-top: 16px;
+font-size: 0.85rem;
+padding: 8px 4px;
+border-top: 1px solid #ddd;
+}
+
+.rules code {
+background: #f0f0f0;
+padding: 0 6px;
+}
+
+.footer {
+margin-top: 10px;
+font-size: 0.75rem;
+color: #555;
+}
+
+/* Login Overlay */
+#login {
+max-width: 400px;
+margin: 40px auto;
+padding: 30px 20px;
+border: 1px solid #ccc;
+background: #fafafa;
+text-align: center;
+}
+
+#login input {
+display: block;
+width: 100%;
+padding: 10px;
+margin: 10px 0;
+font-size: 1rem;
+border: 1px solid #888;
+}
+
+#login button {
+padding: 10px 30px;
+font-size: 1rem;
+font-weight: 600;
+background: #eee;
+border: 1px solid #888;
+cursor: pointer;
+}
+
+#login .error {
+color: #a00;
+font-weight: bold;
+margin-top: 10px;
+}
+
+#app {
+display: none;
+}
+
+/* small screens */
+@media (max-width: 480px) {
+.input-group {
+flex-direction: column;
+gap: 6px;
+}
+.input-group input,
+.input-group button {
+width: 100%;
+}
+h1 {
+font-size: 1.2rem;
+}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login">
+<h2>Calendar Access</h2>
+<p>Enter the global password to use the Base-6 Calendar.</p>
+<input type="password" id="pwdInput" placeholder="Password">
+<button id="loginBtn">Unlock</button>
+<div id="pwdError" class="error"></div>
+</div>
+
+<!-- CALENDAR APP (hidden until login) -->
+<div id="app">
+
+<h1>Base-6 Calendar</h1>
+
+<div class="epoch-info">
+<strong>Epoch:</strong> Winter Solstice (Dec 21, 2025) | Year 0, Month 0, Week 0, Day 0
+</div>
+
+<div class="input-group">
+<input type="date" id="dateInput" value="2026-01-01">
+<button id="convertBtn">Convert</button>
+</div>
+
+<div id="output" class="output">
+<div class="field"><span>Total days since epoch</span> <span id="totalDays">-</span></div>
+<div class="field"><span>Year</span> <span id="yearDisplay">-</span></div>
+<div class="field"><span>Year length</span> <span id="yearLength">-</span></div>
+<div class="field"><span>Month (0-9)</span> <span id="monthDisplay">-</span></div>
+<div class="field"><span>Week (0-5)</span> <span id="weekDisplay">-</span></div>
+<div class="field"><span>Day of week (0-5)</span> <span id="dayDisplay">-</span></div>
+<div class="field" id="specialRow" style="display:none;">
+<span>Special day (0-5, outside weeks)</span>
+<span id="specialDisplay">-</span>
+</div>
+<div class="field" style="margin-top:6px; background:#f6f6f6; padding:4px 6px;">
+<span><strong>Day-of-year</strong> (0-indexed)</span>
+<span id="dayOfYearDisplay">-</span>
+</div>
+
+<div class="field field-highlight">
+<span><strong>Calendar date (1-indexed)</strong></span>
+<span id="formattedDate">-</span>
+</div>
+</div>
+
+<div class="rules">
+<strong>Calendar rules:</strong><br>
+- <strong>Base year:</strong> 366 days = 10 months x 6 weeks x 6 days + 6 special days.<br>
+- <strong>-3 days</strong> every year divisible by <code>4</code> (-> 363 days).<br>
+- <strong>-3 extra days</strong> every year divisible by <code>384</code> (-> 360 days, pure 10x6x6).<br>
+- In a 363-day year, you have <strong>3</strong> special days. In a 360-day year, <strong>0</strong> special days.
+</div>
+
+<div class="footer">
+Password remembered in this browser. To reset, clear your browser data for this site.
+</div>
+</div>
+
+<script>
+// --------------------------------------------
+// 1. SECURITY CONFIG
+// --------------------------------------------
+const GLOBAL_PASSWORD = "base6cal"; // Change this to your desired password
+
+// --------------------------------------------
+// 2. AUTH HANDLING (localStorage)
+// --------------------------------------------
+const AUTH_KEY = 'calendarAuth';
+
+function isAuthenticated() {
+return localStorage.getItem(AUTH_KEY) === 'true';
+}
+
+function setAuthenticated(state) {
+localStorage.setItem(AUTH_KEY, state ? 'true' : 'false');
+}
+
+function showApp() {
+document.getElementById('login').style.display = 'none';
+document.getElementById('app').style.display = 'block';
+// Run the initial conversion now that the app is visible
+const input = document.getElementById('dateInput');
+if (input) {
+// ensure today's date is set if not already
+if (!input.value) {
+const today = new Date();
+const y = today.getFullYear();
+const m = String(today.getMonth() + 1).padStart(2, '0');
+const d = String(today.getDate()).padStart(2, '0');
+input.value = y + '-' + m + '-' + d;
+}
+convert();
+}
+}
+
+function showLogin() {
+document.getElementById('login').style.display = 'block';
+document.getElementById('app').style.display = 'none';
+document.getElementById('pwdError').textContent = '';
+document.getElementById('pwdInput').value = '';
+document.getElementById('pwdInput').focus();
+}
+
+function attemptLogin() {
+const pwd = document.getElementById('pwdInput').value;
+if (pwd === GLOBAL_PASSWORD) {
+setAuthenticated(true);
+showApp();
+} else {
+document.getElementById('pwdError').textContent = 'Incorrect password.';
+document.getElementById('pwdInput').value = '';
+document.getElementById('pwdInput').focus();
+}
+}
+
+// --------------------------------------------
+// 3. CALENDAR CORE (unchanged logic)
+// --------------------------------------------
+const EPOCH = { year: 2025, month: 11, day: 21 };
+
+function getYearLength(year) {
+if (year % 384 === 0) return 360;
+if (year % 4 === 0) return 363;
+return 366;
+}
+
+function daysSinceEpoch(gregorianDate) {
+const g2 = new Date(gregorianDate.getFullYear(), gregorianDate.getMonth(), gregorianDate.getDate());
+const e2 = new Date(EPOCH.year, EPOCH.month, EPOCH.day);
+const diffMs = g2.getTime() - e2.getTime();
+return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+}
+
+function daysToCalendar(totalDays) {
+let days = totalDays;
+let year = 0;
+
+if (days < 0) {
+year = -1;
+while (true) {
+let len = getYearLength(year);
+if (days >= -len) { days += len; break; }
+days += len;
+year--;
+}
+} else {
+while (true) {
+let len = getYearLength(year);
+if (days < len) break;
+days -= len;
+year++;
+}
+}
+
+const yearLength = getYearLength(year);
+const dayOfYear = days;
+let month = null,
+week = null,
+dayInWeek = null,
+specialDay = null;
+
+if (dayOfYear >= 360) {
+specialDay = dayOfYear - 360;
+} else {
+month = Math.floor(dayOfYear / 36);
+const dayInMonth = dayOfYear % 36;
+week = Math.floor(dayInMonth / 6);
+dayInWeek = dayInMonth % 6;
+}
+
+return { year, yearLength, dayOfYear, month, week, dayInWeek, specialDay };
+}
+
+// --------------------------------------------
+// 4. UI UPDATE
+// --------------------------------------------
+function convert() {
+const input = document.getElementById('dateInput');
+const parts = input.value.split('-');
+if (parts.length !== 3) return;
+
+const year = parseInt(parts[0], 10);
+const month = parseInt(parts[1], 10) - 1;
+const day = parseInt(parts[2], 10);
+const gregDate = new Date(year, month, day);
+
+const days = daysSinceEpoch(gregDate);
+const cal = daysToCalendar(days);
+
+const output = document.getElementById('output');
+output.classList.add('visible');
+
+document.getElementById('totalDays').textContent = days;
+document.getElementById('yearDisplay').textContent = cal.year;
+document.getElementById('yearLength').textContent = cal.yearLength + ' days';
+
+if (cal.month !== null) {
+document.getElementById('monthDisplay').textContent = cal.month;
+document.getElementById('weekDisplay').textContent = cal.week;
+document.getElementById('dayDisplay').textContent = cal.dayInWeek;
+document.getElementById('specialRow').style.display = 'none';
+} else {
+document.getElementById('monthDisplay').textContent = '- (special day)';
+document.getElementById('weekDisplay').textContent = '- (special day)';
+document.getElementById('dayDisplay').textContent = '- (special day)';
+document.getElementById('specialRow').style.display = 'flex';
+document.getElementById('specialDisplay').textContent = cal.specialDay;
+}
+
+document.getElementById('dayOfYearDisplay').textContent = cal.dayOfYear;
+
+// 1-indexed formatted date
+let formattedString = '';
+if (cal.month !== null) {
+const m1 = cal.month + 1;
+const w1 = cal.week + 1;
+const d1 = cal.dayInWeek + 1;
+formattedString = 'Year ' + cal.year + ', Month ' + m1 + ', Week ' + w1 + ', Day ' + d1;
+} else {
+const s1 = cal.specialDay + 1;
+formattedString = 'Year ' + cal.year + ', Special Day ' + s1 + ' (outside months)';
+}
+document.getElementById('formattedDate').textContent = formattedString;
+}
+
+// --------------------------------------------
+// 5. INITIALIZATION (with PWA registration)
+// --------------------------------------------
+function initApp() {
+// ---- PWA: register service worker ----
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('/sw.js')
+.then(reg => {
+reg.addEventListener('updatefound', () => {
+const newWorker = reg.installing;
+newWorker.addEventListener('statechange', () => {
+if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+// A new version is waiting – ask user
+if (confirm('New version available. Update now?')) {
+newWorker.postMessage('SKIP_WAITING');
+window.location.reload();
+}
+}
+});
+});
+})
+.catch(err => console.log('SW registration failed:', err));
+}
+
+// ---- Authentication ----
+if (isAuthenticated()) {
+showApp();
+} else {
+showLogin();
+}
+
+// Bind login events
+document.getElementById('loginBtn').addEventListener('click', attemptLogin);
+document.getElementById('pwdInput').addEventListener('keydown', function(e) {
+if (e.key === 'Enter') {
+attemptLogin();
+}
+});
+
+// Bind calendar events
+const dateInput = document.getElementById('dateInput');
+if (dateInput) {
+dateInput.addEventListener('change', convert);
+}
+const convertBtn = document.getElementById('convertBtn');
+if (convertBtn) {
+convertBtn.addEventListener('click', convert);
+}
+}
+
+// Run on page load
+window.onload = initApp;
+</script>
+
+</body>
+</html>
