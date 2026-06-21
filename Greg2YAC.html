@@ -3,9 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Base-6 Calendar</title>
+<title>Greg2YAC</title>
 <!-- PWA manifest -->
 <link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 * {
 box-sizing: border-box;
@@ -169,7 +171,7 @@ font-size: 1.2rem;
 <!-- LOGIN SCREEN -->
 <div id="login">
 <h2>Calendar Access</h2>
-<p>Enter the global password to use the Base-6 Calendar.</p>
+<p>Enter password:</p>
 <input type="password" id="pwdInput" placeholder="Password">
 <button id="loginBtn">Unlock</button>
 <div id="pwdError" class="error"></div>
@@ -178,7 +180,7 @@ font-size: 1.2rem;
 <!-- CALENDAR APP (hidden until login) -->
 <div id="app">
 
-<h1>Base-6 Calendar</h1>
+<h1>Greg2YAC</h1>
 
 <div class="epoch-info">
 <strong>Epoch:</strong> Winter Solstice (Dec 21, 2025) | Year 0, Month 0, Week 0, Day 0
@@ -228,7 +230,7 @@ Password remembered in this browser. To reset, clear your browser data for this 
 // --------------------------------------------
 // 1. SECURITY CONFIG
 // --------------------------------------------
-const GLOBAL_PASSWORD = "base6cal"; // Change this to your desired password
+const GLOBAL_PASSWORD = "greg2yac";
 
 // --------------------------------------------
 // 2. AUTH HANDLING (localStorage)
@@ -397,7 +399,7 @@ document.getElementById('formattedDate').textContent = formattedString;
 function initApp() {
 // ---- PWA: register service worker ----
 if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('/sw.js')
+navigator.serviceWorker.register('./sw.js')
 .then(reg => {
 reg.addEventListener('updatefound', () => {
 const newWorker = reg.installing;

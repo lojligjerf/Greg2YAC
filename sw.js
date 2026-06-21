@@ -3,11 +3,11 @@ const CACHE_NAME = 'base6calendar-v1';
 
 // Files to cache immediately after install
 const PRECACHE_URLS = [
-  '/',                     // the index page
-  '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  './',                    // the index page
+  './Greg2YAC.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 // Install event: pre‑cache the app shell

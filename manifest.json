@@ -1,7 +1,7 @@
 {
       "name": "Greg2YAC",
         "short_name": "Greg2YAC",
-          "start_url": ".",
+          "start_url": "./Greg2YAC.html",
             "display": "standalone",
               "background_color": "#ffffff",
                 "theme_color": "#000000",
