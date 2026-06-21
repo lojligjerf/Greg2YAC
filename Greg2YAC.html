@@ -52,10 +52,16 @@ border: 1px solid #888;
 background: #fff;
 }
 
+.input-group input {
+flex: 2 1 200px;
+font-family: monospace;
+}
+
 .input-group button {
 font-weight: 600;
 background: #eee;
 cursor: pointer;
+flex: 0 1 auto;
 }
 
 .input-group button:active {
@@ -105,6 +111,77 @@ border-top: 1px solid #ddd;
 background: #f0f0f0;
 padding: 0 6px;
 }
+
+/* ─── New year-list section ─── */
+.year-list-section {
+margin-top: 16px;
+padding-top: 10px;
+border-top: 1px solid #ddd;
+}
+
+.year-list-section .controls {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+align-items: center;
+margin-bottom: 8px;
+}
+
+.year-list-section .controls label {
+font-weight: 600;
+}
+
+.year-list-section .controls input {
+width: 80px;
+padding: 6px;
+border: 1px solid #888;
+font-size: 1rem;
+}
+
+.year-list-section .controls button {
+padding: 6px 16px;
+font-weight: 600;
+background: #eee;
+border: 1px solid #888;
+cursor: pointer;
+}
+
+.year-list-section .controls button:active {
+background: #ccc;
+}
+
+#yearListContainer {
+max-height: 260px;
+overflow-y: auto;
+background: #f6f6f6;
+padding: 8px 12px;
+border: 1px solid #ddd;
+font-family: monospace;
+font-size: 0.85rem;
+display: none;
+white-space: pre-wrap;
+word-break: break-all;
+}
+
+#yearListContainer .super {
+color: #b13e00;
+font-weight: bold;
+}
+#yearListContainer .leap {
+color: #005e8c;
+font-weight: bold;
+}
+#yearListContainer .normal {
+color: #2c3e50;
+}
+
+.year-list-legend {
+font-size: 0.75rem;
+color: #555;
+margin-top: 4px;
+}
+.year-list-legend .super-legend { color: #b13e00; font-weight: bold; }
+.year-list-legend .leap-legend { color: #005e8c; font-weight: bold; }
 
 .footer {
 margin-top: 10px;
@@ -163,6 +240,13 @@ width: 100%;
 h1 {
 font-size: 1.2rem;
 }
+.year-list-section .controls {
+flex-direction: column;
+align-items: stretch;
+}
+.year-list-section .controls input {
+width: 100%;
+}
 }
 </style>
 </head>
@@ -183,23 +267,32 @@ font-size: 1.2rem;
 <h1>Greg2YAC</h1>
 
 <div class="epoch-info">
-<strong>Epoch:</strong> Winter Solstice (Dec 21, 2025) | Year 0, Month 0, Week 0, Day 0
+<strong>Epoch:</strong> Winter Solstice (Dec 21, 2025) | Year 1, Month 1, Week 1, Day 1
+</div>
+ 
+<div class="input-group">
+<input type="text" id="dateInput" placeholder="YYYY-MM-DD (e.g., -0500-12-21)" spellcheck="false">
+<button id="convertBtn">Convert</button>
 </div>
 
 <div class="input-group">
-<input type="date" id="dateInput" value="2026-01-01">
-<button id="convertBtn">Convert</button>
+<input type="number" id="calYearInput" placeholder="Year" min="1">
+<input type="number" id="calMonthInput" placeholder="Month 1-10" min="1" max="10">
+<input type="number" id="calWeekInput" placeholder="Week 1-6" min="1" max="6">
+<input type="number" id="calDayInput" placeholder="Day 1-6" min="1" max="6">
+<input type="number" id="calSpecialInput" placeholder="Special day 1-6" min="1" max="6">
+<button id="reverseConvertBtn">To Gregorian</button>
 </div>
 
 <div id="output" class="output">
 <div class="field"><span>Total days since epoch</span> <span id="totalDays">-</span></div>
-<div class="field"><span>Year</span> <span id="yearDisplay">-</span></div>
+<div class="field"><span>Year (1‑indexed)</span> <span id="yearDisplay">-</span></div>
 <div class="field"><span>Year length</span> <span id="yearLength">-</span></div>
-<div class="field"><span>Month (0-9)</span> <span id="monthDisplay">-</span></div>
-<div class="field"><span>Week (0-5)</span> <span id="weekDisplay">-</span></div>
-<div class="field"><span>Day of week (0-5)</span> <span id="dayDisplay">-</span></div>
+<div class="field"><span>Month (1-10)</span> <span id="monthDisplay">-</span></div>
+<div class="field"><span>Week (1-6)</span> <span id="weekDisplay">-</span></div>
+<div class="field"><span>Day of week (1-6)</span> <span id="dayDisplay">-</span></div>
 <div class="field" id="specialRow" style="display:none;">
-<span>Special day (0-5, outside weeks)</span>
+<span>Special day (1-6, outside weeks)</span>
 <span id="specialDisplay">-</span>
 </div>
 <div class="field" style="margin-top:6px; background:#f6f6f6; padding:4px 6px;">
@@ -211,14 +304,33 @@ font-size: 1.2rem;
 <span><strong>Calendar date (1-indexed)</strong></span>
 <span id="formattedDate">-</span>
 </div>
+<div class="field" id="gregorianRow" style="display:none;">
+<span>Gregorian date</span>
+<span id="gregorianDisplay">-</span>
+</div>
 </div>
 
 <div class="rules">
 <strong>Calendar rules:</strong><br>
-- <strong>Base year:</strong> 366 days = 10 months x 6 weeks x 6 days + 6 special days.<br>
-- <strong>-3 days</strong> every year divisible by <code>4</code> (-> 363 days).<br>
-- <strong>-3 extra days</strong> every year divisible by <code>384</code> (-> 360 days, pure 10x6x6).<br>
-- In a 363-day year, you have <strong>3</strong> special days. In a 360-day year, <strong>0</strong> special days.
+- <strong>Base year:</strong> 366 days = 10 months × 6 weeks × 6 days + 6 special days.<br>
+- <strong>−3 days</strong> every year divisible by <code>4</code> (→ 363 days).<br>
+- <strong>−3 extra days</strong> every year divisible by <code>384</code> (→ 360 days, pure 10×6×6).<br>
+- In a 363‑day year, you have <strong>3</strong> special days. In a 360‑day year, <strong>0</strong> special days.
+</div>
+
+<!-- ─── NEW YEAR LIST SECTION ─── -->
+<div class="year-list-section">
+<div class="controls">
+<label for="maxYearInput">List years up to:</label>
+<input type="number" id="maxYearInput" value="50" min="1">
+<button id="generateListBtn">Generate</button>
+</div>
+<div id="yearListContainer"></div>
+<div class="year-list-legend">
+<span class="super-legend">✦</span> = Super Leap (360 days) &nbsp;|&nbsp;
+<span class="leap-legend">↺</span> = Leap (363 days) &nbsp;|&nbsp;
+All others are 366 days.
+</div>
 </div>
 
 <div class="footer">
@@ -248,10 +360,8 @@ localStorage.setItem(AUTH_KEY, state ? 'true' : 'false');
 function showApp() {
 document.getElementById('login').style.display = 'none';
 document.getElementById('app').style.display = 'block';
-// Run the initial conversion now that the app is visible
 const input = document.getElementById('dateInput');
 if (input) {
-// ensure today's date is set if not already
 if (!input.value) {
 const today = new Date();
 const y = today.getFullYear();
@@ -284,14 +394,155 @@ document.getElementById('pwdInput').focus();
 }
 
 // --------------------------------------------
-// 3. CALENDAR CORE (unchanged logic)
+// 3. CALENDAR CORE
 // --------------------------------------------
-const EPOCH = { year: 2025, month: 11, day: 21 };
+// Year 0 is the first year internally.
+// All user-facing displays add +1 to the year.
+const EPOCH = { year: 100, month: 11, day: 21 };
 
+function updateEpochInfo() {
+const epochEl = document.querySelector('.epoch-info');
+if (!epochEl) return;
+const epochDate = new Date(EPOCH.year, EPOCH.month, EPOCH.day);
+const paddedYear = String(EPOCH.year).padStart(4, '0');
+const displayDate = epochDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + paddedYear;
+epochEl.innerHTML = `<strong>Epoch:</strong> Winter Solstice (${displayDate}) | Year 1, Month 1, Week 1, Day 1`;
+}
+
+// Shift the cycle so Year 0 is a normal 366-day year.
+// The 4-year rule applies to years 3, 7, 11... (year % 4 === 3).
+// The 384-year extra removal applies to year 383, 767...
 function getYearLength(year) {
-if (year % 384 === 0) return 360;
-if (year % 4 === 0) return 363;
-return 366;
+const y = year + 1;
+if (y % 384 === 0) return 360;   // pure 10×6×6, zero special days
+if (y % 4 === 0) return 363;     // short year, 3 special days
+return 366;                      // normal year, 6 special days
+}
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+function getDaysBeforeYear(year) {
+let total = 0;
+if (year > 0) {
+for (let y = 0; y < year; y++) {
+total += getYearLength(y);
+}
+} else if (year < 0) {
+for (let y = -1; y >= year; y--) {
+total -= getYearLength(y);
+}
+}
+return total;
+}
+
+function calendarToDays(year, monthIndex, weekIndex, dayIndex, specialIndex) {
+const yearIndex = year - 1;
+const yearOffset = getDaysBeforeYear(yearIndex);
+let dayOfYear;
+if (specialIndex !== null) {
+dayOfYear = 360 + specialIndex;
+} else {
+dayOfYear = monthIndex * 36 + weekIndex * 6 + dayIndex;
+}
+return yearOffset + dayOfYear;
+}
+
+function toGregorianDateString(date) {
+return `${date.getFullYear().toString().padStart(4, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function convertCalendar() {
+const year = parseInt(document.getElementById('calYearInput').value, 10);
+const month = parseInt(document.getElementById('calMonthInput').value, 10);
+const week = parseInt(document.getElementById('calWeekInput').value, 10);
+const day = parseInt(document.getElementById('calDayInput').value, 10);
+const special = parseInt(document.getElementById('calSpecialInput').value, 10);
+
+if (isNaN(year) || year < 1) {
+alert('Enter a valid calendar year (1 or higher).');
+return;
+}
+
+const hasSpecial = !Number.isNaN(special);
+const hasMonthDay = !Number.isNaN(month) && !Number.isNaN(week) && !Number.isNaN(day);
+
+if (hasSpecial && hasMonthDay) {
+alert('Enter either a special day OR month/week/day, not both.');
+return;
+}
+
+let monthIndex = null;
+let weekIndex = null;
+let dayIndex = null;
+let specialIndex = null;
+
+if (hasSpecial) {
+if (special < 1 || special > 6) {
+alert('Special day must be between 1 and 6.');
+return;
+}
+const yearIndex = year - 1;
+if (getYearLength(yearIndex) === 360) {
+alert('This year has no special days. Use month/week/day instead.');
+return;
+}
+specialIndex = special - 1;
+} else {
+if (!hasMonthDay) {
+alert('Enter a calendar date using month, week, and day, or a special day.');
+return;
+}
+if (month < 1 || month > 10 || week < 1 || week > 6 || day < 1 || day > 6) {
+alert('Month must be 1-10, week 1-6, day 1-6.');
+return;
+}
+monthIndex = month - 1;
+weekIndex = week - 1;
+dayIndex = day - 1;
+}
+
+const totalDays = calendarToDays(year, monthIndex, weekIndex, dayIndex, specialIndex);
+const epochDate = new Date(EPOCH.year, EPOCH.month, EPOCH.day);
+const gregDate = new Date(epochDate.getTime() + totalDays * MS_PER_DAY);
+const gregorianString = toGregorianDateString(gregDate);
+
+const cal = daysToCalendar(totalDays);
+const output = document.getElementById('output');
+output.classList.add('visible');
+document.getElementById('gregorianRow').style.display = 'flex';
+document.getElementById('gregorianDisplay').textContent = gregorianString;
+
+document.getElementById('totalDays').textContent = totalDays;
+const displayYear = cal.year + 1;
+document.getElementById('yearDisplay').textContent = displayYear;
+document.getElementById('yearLength').textContent = cal.yearLength + ' days';
+
+if (cal.month !== null) {
+document.getElementById('monthDisplay').textContent = cal.month + 1;
+document.getElementById('weekDisplay').textContent = cal.week + 1;
+document.getElementById('dayDisplay').textContent = cal.dayInWeek + 1;
+document.getElementById('specialRow').style.display = 'none';
+} else {
+const spLabel = cal.specialDay + 1;
+document.getElementById('monthDisplay').textContent = 'Sp ' + spLabel;
+document.getElementById('weekDisplay').textContent = 'Sp ' + spLabel;
+document.getElementById('dayDisplay').textContent = 'Sp ' + spLabel;
+document.getElementById('specialRow').style.display = 'flex';
+document.getElementById('specialDisplay').textContent = cal.specialDay + 1;
+}
+
+document.getElementById('dayOfYearDisplay').textContent = cal.dayOfYear;
+let formattedString = '';
+if (cal.month !== null) {
+const m1 = cal.month + 1;
+const w1 = cal.week + 1;
+const d1 = cal.dayInWeek + 1;
+formattedString = 'Year ' + displayYear + ', Month ' + m1 + ', Week ' + w1 + ', Day ' + d1;
+} else {
+const s1 = cal.specialDay + 1;
+formattedString = 'Year ' + displayYear + ', Special Day ' + s1 + ' (outside months)';
+}
+document.getElementById('formattedDate').textContent = formattedString;
 }
 
 function daysSinceEpoch(gregorianDate) {
@@ -342,18 +593,29 @@ return { year, yearLength, dayOfYear, month, week, dayInWeek, specialDay };
 }
 
 // --------------------------------------------
-// 4. UI UPDATE
+// 4. UI UPDATE (all user-facing numbers are 1-indexed)
 // --------------------------------------------
 function convert() {
 const input = document.getElementById('dateInput');
-const parts = input.value.split('-');
-if (parts.length !== 3) return;
+const val = input.value.trim();
+if (val === '') return;
+
+const parts = val.split('-');
+if (parts.length !== 3) {
+alert('Please enter date in YYYY-MM-DD format (e.g., -0500-12-21)');
+return;
+}
 
 const year = parseInt(parts[0], 10);
 const month = parseInt(parts[1], 10) - 1;
 const day = parseInt(parts[2], 10);
-const gregDate = new Date(year, month, day);
 
+if (isNaN(year) || isNaN(month) || isNaN(day)) {
+alert('Invalid date. Please use numbers.');
+return;
+}
+
+const gregDate = new Date(year, month, day);
 const days = daysSinceEpoch(gregDate);
 const cal = daysToCalendar(days);
 
@@ -361,43 +623,84 @@ const output = document.getElementById('output');
 output.classList.add('visible');
 
 document.getElementById('totalDays').textContent = days;
-document.getElementById('yearDisplay').textContent = cal.year;
+
+const displayYear = cal.year + 1;
+document.getElementById('yearDisplay').textContent = displayYear;
 document.getElementById('yearLength').textContent = cal.yearLength + ' days';
 
 if (cal.month !== null) {
-document.getElementById('monthDisplay').textContent = cal.month;
-document.getElementById('weekDisplay').textContent = cal.week;
-document.getElementById('dayDisplay').textContent = cal.dayInWeek;
+document.getElementById('monthDisplay').textContent = cal.month + 1;
+document.getElementById('weekDisplay').textContent = cal.week + 1;
+document.getElementById('dayDisplay').textContent = cal.dayInWeek + 1;
 document.getElementById('specialRow').style.display = 'none';
 } else {
-document.getElementById('monthDisplay').textContent = '- (special day)';
-document.getElementById('weekDisplay').textContent = '- (special day)';
-document.getElementById('dayDisplay').textContent = '- (special day)';
+const spLabel = cal.specialDay + 1;
+document.getElementById('monthDisplay').textContent = 'Sp ' + spLabel;
+document.getElementById('weekDisplay').textContent = 'Sp ' + spLabel;
+document.getElementById('dayDisplay').textContent = 'Sp ' + spLabel;
 document.getElementById('specialRow').style.display = 'flex';
-document.getElementById('specialDisplay').textContent = cal.specialDay;
+document.getElementById('specialDisplay').textContent = cal.specialDay + 1;
 }
 
+document.getElementById('gregorianRow').style.display = 'none';
+document.getElementById('gregorianDisplay').textContent = '-';
 document.getElementById('dayOfYearDisplay').textContent = cal.dayOfYear;
 
-// 1-indexed formatted date
 let formattedString = '';
 if (cal.month !== null) {
 const m1 = cal.month + 1;
 const w1 = cal.week + 1;
 const d1 = cal.dayInWeek + 1;
-formattedString = 'Year ' + cal.year + ', Month ' + m1 + ', Week ' + w1 + ', Day ' + d1;
+formattedString = 'Year ' + displayYear + ', Month ' + m1 + ', Week ' + w1 + ', Day ' + d1;
 } else {
 const s1 = cal.specialDay + 1;
-formattedString = 'Year ' + cal.year + ', Special Day ' + s1 + ' (outside months)';
+formattedString = 'Year ' + displayYear + ', Special Day ' + s1 + ' (outside months)';
 }
 document.getElementById('formattedDate').textContent = formattedString;
 }
 
 // --------------------------------------------
-// 5. INITIALIZATION (with PWA registration)
+// 5. YEAR LIST GENERATOR
+// --------------------------------------------
+function generateYearList() {
+const input = document.getElementById('maxYearInput');
+let maxYear = parseInt(input.value, 10);
+if (isNaN(maxYear) || maxYear < 1) {
+maxYear = 1;
+input.value = 1;
+}
+
+const container = document.getElementById('yearListContainer');
+container.style.display = 'block';
+
+let html = '';
+for (let internalYear = 0; internalYear < maxYear; internalYear++) {
+const displayYear = internalYear + 1;
+const len = getYearLength(internalYear); // internal year index
+let label = '';
+let cls = 'normal';
+if (len === 360) {
+label = '✦ Super Leap (360 days)';
+cls = 'super';
+} else if (len === 363) {
+label = '↺ Leap (363 days)';
+cls = 'leap';
+} else {
+label = 'Normal (366 days)';
+cls = 'normal';
+}
+const paddedYear = String(displayYear).padStart(4, ' ');
+html += `<span class="${cls}">${paddedYear}: ${label}</span>\n`;
+}
+container.innerHTML = html;
+}
+
+// --------------------------------------------
+// 6. INITIALIZATION (with PWA registration)
 // --------------------------------------------
 function initApp() {
-// ---- PWA: register service worker ----
+updateEpochInfo();
+
 if ('serviceWorker' in navigator) {
 navigator.serviceWorker.register('./sw.js')
 .then(reg => {
@@ -405,7 +708,6 @@ reg.addEventListener('updatefound', () => {
 const newWorker = reg.installing;
 newWorker.addEventListener('statechange', () => {
 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-// A new version is waiting – ask user
 if (confirm('New version available. Update now?')) {
 newWorker.postMessage('SKIP_WAITING');
 window.location.reload();
@@ -417,14 +719,12 @@ window.location.reload();
 .catch(err => console.log('SW registration failed:', err));
 }
 
-// ---- Authentication ----
 if (isAuthenticated()) {
 showApp();
 } else {
 showLogin();
 }
 
-// Bind login events
 document.getElementById('loginBtn').addEventListener('click', attemptLogin);
 document.getElementById('pwdInput').addEventListener('keydown', function(e) {
 if (e.key === 'Enter') {
@@ -432,18 +732,32 @@ attemptLogin();
 }
 });
 
-// Bind calendar events
 const dateInput = document.getElementById('dateInput');
 if (dateInput) {
 dateInput.addEventListener('change', convert);
+dateInput.addEventListener('keydown', function(e) {
+if (e.key === 'Enter') {
+convert();
+}
+});
 }
 const convertBtn = document.getElementById('convertBtn');
 if (convertBtn) {
 convertBtn.addEventListener('click', convert);
 }
+const reverseConvertBtn = document.getElementById('reverseConvertBtn');
+if (reverseConvertBtn) {
+reverseConvertBtn.addEventListener('click', convertCalendar);
 }
 
-// Run on page load
+// Bind year-list controls
+document.getElementById('generateListBtn').addEventListener('click', generateYearList);
+document.getElementById('maxYearInput').addEventListener('change', generateYearList);
+
+// Generate the list on load with the default value (50)
+generateYearList();
+}
+
 window.onload = initApp;
 </script>
 
