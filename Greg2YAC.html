@@ -1,765 +1,745 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Greg2YAC</title>
-<!-- PWA manifest -->
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<style>
-* {
-box-sizing: border-box;
-}
-
-body {
-max-width: 700px;
-margin: 20px auto;
-padding: 10px;
-font-family: system-ui, -apple-system, sans-serif;
-background: #fff;
-color: #000;
-line-height: 1.5;
-}
-
-h1 {
-font-weight: 400;
-font-size: 1.5rem;
-margin: 0 0 4px 0;
-padding-bottom: 4px;
-border-bottom: 1px solid #ccc;
-}
-
-.epoch-info {
-font-size: 0.9rem;
-margin: 6px 0 12px 0;
-}
-
-.input-group {
-display: flex;
-flex-wrap: wrap;
-gap: 8px;
-margin: 12px 0;
-}
-
-.input-group input,
-.input-group button {
-min-height: 40px;
-padding: 6px 12px;
-font-size: 1rem;
-border: 1px solid #888;
-background: #fff;
-}
-
-.input-group input {
-flex: 2 1 200px;
-font-family: monospace;
-}
-
-.input-group button {
-font-weight: 600;
-background: #eee;
-cursor: pointer;
-flex: 0 1 auto;
-}
-
-.input-group button:active {
-background: #ccc;
-}
-
-.output {
-margin-top: 14px;
-padding: 10px 4px;
-border-top: 1px solid #ccc;
-display: none;
-}
-
-.output.visible {
-display: block;
-}
-
-.output .field {
-display: flex;
-justify-content: space-between;
-flex-wrap: wrap;
-gap: 2px 10px;
-padding: 4px 0;
-border-bottom: 1px solid #eee;
-}
-
-.output .field:last-child {
-border-bottom: none;
-}
-
-.output .field-highlight {
-background: #eef4fa;
-padding: 6px 8px;
-margin-top: 6px;
-font-weight: 500;
-border-bottom: none;
-}
-
-.rules {
-margin-top: 16px;
-font-size: 0.85rem;
-padding: 8px 4px;
-border-top: 1px solid #ddd;
-}
-
-.rules code {
-background: #f0f0f0;
-padding: 0 6px;
-}
-
-/* ─── New year-list section ─── */
-.year-list-section {
-margin-top: 16px;
-padding-top: 10px;
-border-top: 1px solid #ddd;
-}
-
-.year-list-section .controls {
-display: flex;
-flex-wrap: wrap;
-gap: 8px;
-align-items: center;
-margin-bottom: 8px;
-}
-
-.year-list-section .controls label {
-font-weight: 600;
-}
-
-.year-list-section .controls input {
-width: 80px;
-padding: 6px;
-border: 1px solid #888;
-font-size: 1rem;
-}
-
-.year-list-section .controls button {
-padding: 6px 16px;
-font-weight: 600;
-background: #eee;
-border: 1px solid #888;
-cursor: pointer;
-}
-
-.year-list-section .controls button:active {
-background: #ccc;
-}
-
-#yearListContainer {
-max-height: 260px;
-overflow-y: auto;
-background: #f6f6f6;
-padding: 8px 12px;
-border: 1px solid #ddd;
-font-family: monospace;
-font-size: 0.85rem;
-display: none;
-white-space: pre-wrap;
-word-break: break-all;
-}
-
-#yearListContainer .super {
-color: #b13e00;
-font-weight: bold;
-}
-#yearListContainer .leap {
-color: #005e8c;
-font-weight: bold;
-}
-#yearListContainer .normal {
-color: #2c3e50;
-}
-
-.year-list-legend {
-font-size: 0.75rem;
-color: #555;
-margin-top: 4px;
-}
-.year-list-legend .super-legend { color: #b13e00; font-weight: bold; }
-.year-list-legend .leap-legend { color: #005e8c; font-weight: bold; }
-
-.footer {
-margin-top: 10px;
-font-size: 0.75rem;
-color: #555;
-}
-
-/* Login Overlay */
-#login {
-max-width: 400px;
-margin: 40px auto;
-padding: 30px 20px;
-border: 1px solid #ccc;
-background: #fafafa;
-text-align: center;
-}
-
-#login input {
-display: block;
-width: 100%;
-padding: 10px;
-margin: 10px 0;
-font-size: 1rem;
-border: 1px solid #888;
-}
-
-#login button {
-padding: 10px 30px;
-font-size: 1rem;
-font-weight: 600;
-background: #eee;
-border: 1px solid #888;
-cursor: pointer;
-}
-
-#login .error {
-color: #a00;
-font-weight: bold;
-margin-top: 10px;
-}
-
-#app {
-display: none;
-}
-
-/* small screens */
-@media (max-width: 480px) {
-.input-group {
-flex-direction: column;
-gap: 6px;
-}
-.input-group input,
-.input-group button {
-width: 100%;
-}
-h1 {
-font-size: 1.2rem;
-}
-.year-list-section .controls {
-flex-direction: column;
-align-items: stretch;
-}
-.year-list-section .controls input {
-width: 100%;
-}
-}
-</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YAC Calendar Converter</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            font-size: 15px;
+            line-height: 1.4;
+            color: #222;
+            background: #fafafa;
+            padding: 16px;
+            max-width: 540px;
+            margin: 0 auto;
+            -webkit-text-size-adjust: 100%;
+        }
+        h1 {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 14px;
+            text-align: center;
+            letter-spacing: 0.02em;
+            color: #333;
+        }
+        .converter-block {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+        }
+        .converter-block h2 {
+            font-size: 0.95em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #444;
+            letter-spacing: 0.02em;
+        }
+        .field-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 10px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .field-row+.field-row {
+            margin-top: 2px;
+        }
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1 1 60px;
+        }
+        .field-group label {
+            font-size: 0.75em;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 2px;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+        .field-group input,
+        .field-group select {
+            font-size: 0.95em;
+            padding: 6px 7px;
+            border: 1px solid #ccc;
+            background: #fdfdfd;
+            width: 100%;
+            min-width: 50px;
+            border-radius: 0;
+        }
+        .field-group input:focus,
+        .field-group select:focus {
+            outline: 1px solid #888;
+            outline-offset: -1px;
+            background: #fff;
+        }
+        .field-group input:disabled,
+        .field-group select:disabled {
+            background: #eee;
+            color: #999;
+            cursor: not-allowed;
+        }
+        .field-group input[readonly] {
+            background: #f5f5f5;
+            color: #555;
+            cursor: default;
+            border-color: #ddd;
+        }
+        .field-group input[readonly]:focus {
+            outline: none;
+        }
+        .note {
+            font-size: 0.7em;
+            color: #888;
+            margin-top: 4px;
+            letter-spacing: 0.02em;
+        }
+        .intercalary-badge {
+            font-size: 0.7em;
+            font-weight: 600;
+            color: #b45f06;
+            background: #fef3e0;
+            padding: 2px 6px;
+            display: inline-block;
+            margin-left: 4px;
+            letter-spacing: 0.03em;
+        }
+        .name-row {
+            border-top: 1px solid #eee;
+            padding-top: 8px;
+            margin-top: 2px;
+        }
+        .name-row .field-group label {
+            color: #999;
+            font-size: 0.65em;
+        }
+        .name-row .field-group input {
+            font-size: 0.85em;
+            font-weight: 500;
+            color: #333;
+            background: #f7f7f7;
+            border-color: #e0e0e0;
+            padding: 5px 7px;
+        }
+        .name-row .field-group input[readonly] {
+            background: #f7f7f7;
+            color: #333;
+        }
+        .epoch-row .field-group label {
+            color: #777;
+            font-size: 0.65em;
+        }
+        .epoch-row .field-group input {
+            font-size: 0.85em;
+            font-weight: 500;
+            color: #2a5c8a;
+            background: #f0f5fa;
+            border-color: #c0d0e0;
+            padding: 5px 7px;
+        }
+        .epoch-row .field-group input[readonly] {
+            background: #f0f5fa;
+            color: #2a5c8a;
+        }
+        .fullname-row {
+            border-top: 1px solid #e8e8e8;
+            padding-top: 6px;
+            margin-top: 4px;
+        }
+        .fullname-row .field-group {
+            flex: 1 1 100%;
+        }
+        .fullname-row .field-group input {
+            font-size: 0.95em;
+            font-weight: 500;
+            color: #1a4a6e;
+            background: #f7fafc;
+            border-color: #c8d8e8;
+            padding: 6px 10px;
+            text-align: center;
+        }
+        .fullname-row .field-group input[readonly] {
+            background: #f7fafc;
+            color: #1a4a6e;
+        }
+        @media (max-width: 400px) {
+            body {
+                padding: 8px;
+                font-size: 14px;
+            }
+            .converter-block {
+                padding: 10px 12px;
+            }
+            .field-group {
+                flex: 1 1 45px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<!-- LOGIN SCREEN -->
-<div id="login">
-<h2>Calendar Access</h2>
-<p>Enter password:</p>
-<input type="password" id="pwdInput" placeholder="Password">
-<button id="loginBtn">Unlock</button>
-<div id="pwdError" class="error"></div>
-</div>
-
-<!-- CALENDAR APP (hidden until login) -->
-<div id="app">
-
-<h1>Greg2YAC</h1>
-
-<div class="epoch-info">
-<strong>Epoch:</strong> Winter Solstice (Dec 21, 2025) | Year 1, Month 1, Week 1, Day 1
-</div>
- 
-<div class="input-group">
-<input type="text" id="dateInput" placeholder="YYYY-MM-DD (e.g., -0500-12-21)" spellcheck="false">
-<button id="convertBtn">Convert</button>
-</div>
-
-<div class="input-group">
-<input type="number" id="calYearInput" placeholder="Year" min="1">
-<input type="number" id="calMonthInput" placeholder="Month 1-10" min="1" max="10">
-<input type="number" id="calWeekInput" placeholder="Week 1-6" min="1" max="6">
-<input type="number" id="calDayInput" placeholder="Day 1-6" min="1" max="6">
-<input type="number" id="calSpecialInput" placeholder="Special day 1-6" min="1" max="6">
-<button id="reverseConvertBtn">To Gregorian</button>
-</div>
-
-<div id="output" class="output">
-<div class="field"><span>Total days since epoch</span> <span id="totalDays">-</span></div>
-<div class="field"><span>Year (1‑indexed)</span> <span id="yearDisplay">-</span></div>
-<div class="field"><span>Year length</span> <span id="yearLength">-</span></div>
-<div class="field"><span>Month (1-10)</span> <span id="monthDisplay">-</span></div>
-<div class="field"><span>Week (1-6)</span> <span id="weekDisplay">-</span></div>
-<div class="field"><span>Day of week (1-6)</span> <span id="dayDisplay">-</span></div>
-<div class="field" id="specialRow" style="display:none;">
-<span>Special day (1-6, outside weeks)</span>
-<span id="specialDisplay">-</span>
-</div>
-<div class="field" style="margin-top:6px; background:#f6f6f6; padding:4px 6px;">
-<span><strong>Day-of-year</strong> (0-indexed)</span>
-<span id="dayOfYearDisplay">-</span>
-</div>
-
-<div class="field field-highlight">
-<span><strong>Calendar date (1-indexed)</strong></span>
-<span id="formattedDate">-</span>
-</div>
-<div class="field" id="gregorianRow" style="display:none;">
-<span>Gregorian date</span>
-<span id="gregorianDisplay">-</span>
-</div>
-</div>
-
-<div class="rules">
-<strong>Calendar rules:</strong><br>
-- <strong>Base year:</strong> 366 days = 10 months × 6 weeks × 6 days + 6 special days.<br>
-- <strong>−3 days</strong> every year divisible by <code>4</code> (→ 363 days).<br>
-- <strong>−3 extra days</strong> every year divisible by <code>384</code> (→ 360 days, pure 10×6×6).<br>
-- In a 363‑day year, you have <strong>3</strong> special days. In a 360‑day year, <strong>0</strong> special days.
-</div>
-
-<!-- ─── NEW YEAR LIST SECTION ─── -->
-<div class="year-list-section">
-<div class="controls">
-<label for="maxYearInput">List years up to:</label>
-<input type="number" id="maxYearInput" value="50" min="1">
-<button id="generateListBtn">Generate</button>
-</div>
-<div id="yearListContainer"></div>
-<div class="year-list-legend">
-<span class="super-legend">✦</span> = Super Leap (360 days) &nbsp;|&nbsp;
-<span class="leap-legend">↺</span> = Leap (363 days) &nbsp;|&nbsp;
-All others are 366 days.
-</div>
-</div>
-
-<div class="footer">
-Password remembered in this browser. To reset, clear your browser data for this site.
-</div>
-</div>
-
-<script>
-// --------------------------------------------
-// 1. SECURITY CONFIG
-// --------------------------------------------
-const GLOBAL_PASSWORD = "greg2yac";
-
-// --------------------------------------------
-// 2. AUTH HANDLING (localStorage)
-// --------------------------------------------
-const AUTH_KEY = 'calendarAuth';
-
-function isAuthenticated() {
-return localStorage.getItem(AUTH_KEY) === 'true';
-}
-
-function setAuthenticated(state) {
-localStorage.setItem(AUTH_KEY, state ? 'true' : 'false');
-}
-
-function showApp() {
-document.getElementById('login').style.display = 'none';
-document.getElementById('app').style.display = 'block';
-const input = document.getElementById('dateInput');
-if (input) {
-if (!input.value) {
-const today = new Date();
-const y = today.getFullYear();
-const m = String(today.getMonth() + 1).padStart(2, '0');
-const d = String(today.getDate()).padStart(2, '0');
-input.value = y + '-' + m + '-' + d;
-}
-convert();
-}
-}
-
-function showLogin() {
-document.getElementById('login').style.display = 'block';
-document.getElementById('app').style.display = 'none';
-document.getElementById('pwdError').textContent = '';
-document.getElementById('pwdInput').value = '';
-document.getElementById('pwdInput').focus();
-}
-
-function attemptLogin() {
-const pwd = document.getElementById('pwdInput').value;
-if (pwd === GLOBAL_PASSWORD) {
-setAuthenticated(true);
-showApp();
-} else {
-document.getElementById('pwdError').textContent = 'Incorrect password.';
-document.getElementById('pwdInput').value = '';
-document.getElementById('pwdInput').focus();
-}
-}
-
-// --------------------------------------------
-// 3. CALENDAR CORE
-// --------------------------------------------
-// Year 0 is the first year internally.
-// All user-facing displays add +1 to the year.
-const EPOCH = { year: 100, month: 11, day: 21 };
-
-function updateEpochInfo() {
-const epochEl = document.querySelector('.epoch-info');
-if (!epochEl) return;
-const epochDate = new Date(Date.UTC(EPOCH.year, EPOCH.month, EPOCH.day));
-const paddedYear = String(EPOCH.year).padStart(4, '0');
-const displayDate = epochDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + paddedYear;
-epochEl.innerHTML = `<strong>Epoch:</strong> Winter Solstice (${displayDate}) | Year 1, Month 1, Week 1, Day 1`;
-}
-
-// Shift the cycle so Year 0 is a normal 366-day year.
-// The 4-year rule applies to years 3, 7, 11... (year % 4 === 3).
-// The 384-year extra removal applies to year 383, 767...
-function getYearLength(year) {
-const y = year + 1;
-if (y % 384 === 0) return 360;   // pure 10×6×6, zero special days
-if (y % 4 === 0) return 363;     // short year, 3 special days
-return 366;                      // normal year, 6 special days
-}
-
-const MS_PER_DAY = 1000 * 60 * 60 * 24;
-
-function getDaysBeforeYear(year) {
-let total = 0;
-if (year > 0) {
-for (let y = 0; y < year; y++) {
-total += getYearLength(y);
-}
-} else if (year < 0) {
-for (let y = -1; y >= year; y--) {
-total -= getYearLength(y);
-}
-}
-return total;
-}
-
-function calendarToDays(year, monthIndex, weekIndex, dayIndex, specialIndex) {
-const yearIndex = year - 1;
-const yearOffset = getDaysBeforeYear(yearIndex);
-let dayOfYear;
-if (specialIndex !== null) {
-dayOfYear = 360 + specialIndex;
-} else {
-dayOfYear = monthIndex * 36 + weekIndex * 6 + dayIndex;
-}
-return yearOffset + dayOfYear;
-}
-
-function toGregorianDateString(date) {
-return `${date.getUTCFullYear().toString().padStart(4, '0')}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
-}
-
-function convertCalendar() {
-const year = parseInt(document.getElementById('calYearInput').value, 10);
-const month = parseInt(document.getElementById('calMonthInput').value, 10);
-const week = parseInt(document.getElementById('calWeekInput').value, 10);
-const day = parseInt(document.getElementById('calDayInput').value, 10);
-const special = parseInt(document.getElementById('calSpecialInput').value, 10);
-
-if (isNaN(year) || year < 1) {
-alert('Enter a valid calendar year (1 or higher).');
-return;
-}
-
-const hasSpecial = !Number.isNaN(special);
-const hasMonthDay = !Number.isNaN(month) && !Number.isNaN(week) && !Number.isNaN(day);
-
-if (hasSpecial && hasMonthDay) {
-alert('Enter either a special day OR month/week/day, not both.');
-return;
-}
-
-let monthIndex = null;
-let weekIndex = null;
-let dayIndex = null;
-let specialIndex = null;
-
-if (hasSpecial) {
-if (special < 1 || special > 6) {
-alert('Special day must be between 1 and 6.');
-return;
-}
-const yearIndex = year - 1;
-if (getYearLength(yearIndex) === 360) {
-alert('This year has no special days. Use month/week/day instead.');
-return;
-}
-specialIndex = special - 1;
-} else {
-if (!hasMonthDay) {
-alert('Enter a calendar date using month, week, and day, or a special day.');
-return;
-}
-if (month < 1 || month > 10 || week < 1 || week > 6 || day < 1 || day > 6) {
-alert('Month must be 1-10, week 1-6, day 1-6.');
-return;
-}
-monthIndex = month - 1;
-weekIndex = week - 1;
-dayIndex = day - 1;
-}
-
-const totalDays = calendarToDays(year, monthIndex, weekIndex, dayIndex, specialIndex);
-const epochUtc = Date.UTC(EPOCH.year, EPOCH.month, EPOCH.day);
-const gregDate = new Date(epochUtc + totalDays * MS_PER_DAY);
-const gregorianString = toGregorianDateString(gregDate);
-
-const cal = daysToCalendar(totalDays);
-const output = document.getElementById('output');
-output.classList.add('visible');
-document.getElementById('gregorianRow').style.display = 'flex';
-document.getElementById('gregorianDisplay').textContent = gregorianString;
-
-document.getElementById('totalDays').textContent = totalDays;
-const displayYear = cal.year + 1;
-document.getElementById('yearDisplay').textContent = displayYear;
-document.getElementById('yearLength').textContent = cal.yearLength + ' days';
-
-if (cal.month !== null) {
-document.getElementById('monthDisplay').textContent = cal.month + 1;
-document.getElementById('weekDisplay').textContent = cal.week + 1;
-document.getElementById('dayDisplay').textContent = cal.dayInWeek + 1;
-document.getElementById('specialRow').style.display = 'none';
-} else {
-const spLabel = cal.specialDay + 1;
-document.getElementById('monthDisplay').textContent = 'Sp ' + spLabel;
-document.getElementById('weekDisplay').textContent = 'Sp ' + spLabel;
-document.getElementById('dayDisplay').textContent = 'Sp ' + spLabel;
-document.getElementById('specialRow').style.display = 'flex';
-document.getElementById('specialDisplay').textContent = cal.specialDay + 1;
-}
-
-document.getElementById('dayOfYearDisplay').textContent = cal.dayOfYear;
-let formattedString = '';
-if (cal.month !== null) {
-const m1 = cal.month + 1;
-const w1 = cal.week + 1;
-const d1 = cal.dayInWeek + 1;
-formattedString = 'Year ' + displayYear + ', Month ' + m1 + ', Week ' + w1 + ', Day ' + d1;
-} else {
-const s1 = cal.specialDay + 1;
-formattedString = 'Year ' + displayYear + ', Special Day ' + s1 + ' (outside months)';
-}
-document.getElementById('formattedDate').textContent = formattedString;
-}
-
-function daysSinceEpoch(gregorianDate) {
-const g2 = Date.UTC(gregorianDate.getFullYear(), gregorianDate.getMonth(), gregorianDate.getDate());
-const e2 = Date.UTC(EPOCH.year, EPOCH.month, EPOCH.day);
-const diffMs = g2 - e2;
-return Math.floor(diffMs / (1000 * 60 * 60 * 24));
-}
-
-function daysToCalendar(totalDays) {
-let days = totalDays;
-let year = 0;
-
-if (days < 0) {
-year = -1;
-while (true) {
-let len = getYearLength(year);
-if (days >= -len) { days += len; break; }
-days += len;
-year--;
-}
-} else {
-while (true) {
-let len = getYearLength(year);
-if (days < len) break;
-days -= len;
-year++;
-}
-}
-
-const yearLength = getYearLength(year);
-const dayOfYear = days;
-let month = null,
-week = null,
-dayInWeek = null,
-specialDay = null;
-
-if (dayOfYear >= 360) {
-specialDay = dayOfYear - 360;
-} else {
-month = Math.floor(dayOfYear / 36);
-const dayInMonth = dayOfYear % 36;
-week = Math.floor(dayInMonth / 6);
-dayInWeek = dayInMonth % 6;
-}
-
-return { year, yearLength, dayOfYear, month, week, dayInWeek, specialDay };
-}
-
-// --------------------------------------------
-// 4. UI UPDATE (all user-facing numbers are 1-indexed)
-// --------------------------------------------
-function convert() {
-const input = document.getElementById('dateInput');
-const val = input.value.trim();
-if (val === '') return;
-
-const parts = val.split('-');
-if (parts.length !== 3) {
-alert('Please enter date in YYYY-MM-DD format (e.g., -0500-12-21)');
-return;
-}
-
-const year = parseInt(parts[0], 10);
-const month = parseInt(parts[1], 10) - 1;
-const day = parseInt(parts[2], 10);
-
-if (isNaN(year) || isNaN(month) || isNaN(day)) {
-alert('Invalid date. Please use numbers.');
-return;
-}
-
-const gregDate = new Date(Date.UTC(year, month, day));
-const days = daysSinceEpoch(gregDate);
-const cal = daysToCalendar(days);
-
-const output = document.getElementById('output');
-output.classList.add('visible');
-
-document.getElementById('totalDays').textContent = days;
-
-const displayYear = cal.year + 1;
-document.getElementById('yearDisplay').textContent = displayYear;
-document.getElementById('yearLength').textContent = cal.yearLength + ' days';
-
-if (cal.month !== null) {
-document.getElementById('monthDisplay').textContent = cal.month + 1;
-document.getElementById('weekDisplay').textContent = cal.week + 1;
-document.getElementById('dayDisplay').textContent = cal.dayInWeek + 1;
-document.getElementById('specialRow').style.display = 'none';
-} else {
-const spLabel = cal.specialDay + 1;
-document.getElementById('monthDisplay').textContent = 'Sp ' + spLabel;
-document.getElementById('weekDisplay').textContent = 'Sp ' + spLabel;
-document.getElementById('dayDisplay').textContent = 'Sp ' + spLabel;
-document.getElementById('specialRow').style.display = 'flex';
-document.getElementById('specialDisplay').textContent = cal.specialDay + 1;
-}
-
-document.getElementById('gregorianRow').style.display = 'none';
-document.getElementById('gregorianDisplay').textContent = '-';
-document.getElementById('dayOfYearDisplay').textContent = cal.dayOfYear;
-
-let formattedString = '';
-if (cal.month !== null) {
-const m1 = cal.month + 1;
-const w1 = cal.week + 1;
-const d1 = cal.dayInWeek + 1;
-formattedString = 'Year ' + displayYear + ', Month ' + m1 + ', Week ' + w1 + ', Day ' + d1;
-} else {
-const s1 = cal.specialDay + 1;
-formattedString = 'Year ' + displayYear + ', Special Day ' + s1 + ' (outside months)';
-}
-document.getElementById('formattedDate').textContent = formattedString;
-}
-
-// --------------------------------------------
-// 5. YEAR LIST GENERATOR
-// --------------------------------------------
-function generateYearList() {
-const input = document.getElementById('maxYearInput');
-let maxYear = parseInt(input.value, 10);
-if (isNaN(maxYear) || maxYear < 1) {
-maxYear = 1;
-input.value = 1;
-}
-
-const container = document.getElementById('yearListContainer');
-container.style.display = 'block';
-
-let html = '';
-for (let internalYear = 0; internalYear < maxYear; internalYear++) {
-const displayYear = internalYear + 1;
-const len = getYearLength(internalYear); // internal year index
-let label = '';
-let cls = 'normal';
-if (len === 360) {
-label = '✦ Super Leap (360 days)';
-cls = 'super';
-} else if (len === 363) {
-label = '↺ Leap (363 days)';
-cls = 'leap';
-} else {
-label = 'Normal (366 days)';
-cls = 'normal';
-}
-const paddedYear = String(displayYear).padStart(4, ' ');
-html += `<span class="${cls}">${paddedYear}: ${label}</span>\n`;
-}
-container.innerHTML = html;
-}
-
-// --------------------------------------------
-// 6. INITIALIZATION (with PWA registration)
-// --------------------------------------------
-function initApp() {
-updateEpochInfo();
-
-if ('serviceWorker' in navigator) {
-navigator.serviceWorker.register('./sw.js')
-.then(reg => {
-reg.addEventListener('updatefound', () => {
-const newWorker = reg.installing;
-newWorker.addEventListener('statechange', () => {
-if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-if (confirm('New version available. Update now?')) {
-newWorker.postMessage('SKIP_WAITING');
-window.location.reload();
-}
-}
-});
-});
-})
-.catch(err => console.log('SW registration failed:', err));
-}
-
-if (isAuthenticated()) {
-showApp();
-} else {
-showLogin();
-}
-
-document.getElementById('loginBtn').addEventListener('click', attemptLogin);
-document.getElementById('pwdInput').addEventListener('keydown', function(e) {
-if (e.key === 'Enter') {
-attemptLogin();
-}
-});
-
-const dateInput = document.getElementById('dateInput');
-if (dateInput) {
-dateInput.addEventListener('change', convert);
-dateInput.addEventListener('keydown', function(e) {
-if (e.key === 'Enter') {
-convert();
-}
-});
-}
-const convertBtn = document.getElementById('convertBtn');
-if (convertBtn) {
-convertBtn.addEventListener('click', convert);
-}
-const reverseConvertBtn = document.getElementById('reverseConvertBtn');
-if (reverseConvertBtn) {
-reverseConvertBtn.addEventListener('click', convertCalendar);
-}
-
-// Bind year-list controls
-document.getElementById('generateListBtn').addEventListener('click', generateYearList);
-document.getElementById('maxYearInput').addEventListener('change', generateYearList);
-
-// Generate the list on load with the default value (50)
-generateYearList();
-}
-
-window.onload = initApp;
-</script>
-
+    <h1>YAC Calendar Converter</h1>
+
+    <!-- GREGORIAN -->
+    <div class="converter-block" id="gregorian-block">
+        <h2>Proleptic Gregorian</h2>
+        <div class="field-row">
+            <div class="field-group">
+                <label for="greg-year">Year</label>
+                <input type="number" id="greg-year" placeholder="e.g. -662" />
+            </div>
+            <div class="field-group">
+                <label for="greg-month">Month</label>
+                <select id="greg-month">
+                    <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
+                    <option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option>
+                    <option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option>
+                    <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="greg-day">Day</label>
+                <input type="number" id="greg-day" min="1" max="31" />
+            </div>
+        </div>
+        <div class="note">Use astronomical year: 0 = 1 BCE, −1 = 2 BCE, etc.</div>
+    </div>
+
+    <!-- YAC -->
+    <div class="converter-block" id="yac-block">
+        <h2>YAC Calendar <span style="font-weight:400;font-size:0.8em;">(6×6×10+6−3/4−3/384)</span></h2>
+
+        <!-- input row -->
+        <div class="field-row">
+            <div class="field-group">
+                <label for="yac-year">Year</label>
+                <input type="number" id="yac-year" placeholder="YAC year" />
+            </div>
+            <div class="field-group">
+                <label for="yac-month">Month</label>
+                <select id="yac-month">
+                    <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                    <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+                    <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">Intercalary</option>
+                </select>
+            </div>
+            <div class="field-group" id="yac-week-group">
+                <label for="yac-week">Week</label>
+                <input type="number" id="yac-week" min="1" max="6" />
+            </div>
+            <div class="field-group">
+                <label for="yac-day">Day</label>
+                <input type="number" id="yac-day" min="1" max="6" />
+            </div>
+        </div>
+
+        <!-- epoch & year-in-epoch row -->
+        <div class="field-row epoch-row">
+            <div class="field-group">
+                <label>Epoch</label>
+                <input type="text" id="yac-epoch" readonly value="—" />
+            </div>
+            <div class="field-group">
+                <label>Year in Epoch</label>
+                <input type="text" id="yac-year-in-epoch" readonly value="—" />
+            </div>
+        </div>
+
+        <!-- display-name row (month, week, day names) -->
+        <div class="field-row name-row">
+            <div class="field-group">
+                <label>Month Name</label>
+                <input type="text" id="yac-month-name" readonly value="—" />
+            </div>
+            <div class="field-group">
+                <label>Week Name</label>
+                <input type="text" id="yac-week-name" readonly value="—" />
+            </div>
+            <div class="field-group">
+                <label>Day Name</label>
+                <input type="text" id="yac-day-name" readonly value="—" />
+            </div>
+        </div>
+
+        <!-- full name row -->
+        <div class="field-row fullname-row">
+            <div class="field-group">
+                <label>Full Date</label>
+                <input type="text" id="yac-full-name" readonly value="—" />
+            </div>
+        </div>
+
+        <div class="note" id="yac-intercalary-note" style="display:none;">
+            <span class="intercalary-badge">Intercalary</span> Days outside regular months &amp; weeks.
+        </div>
+        <div class="note" id="yac-zeroint-note" style="display:none;color:#c44;">
+            This year has 0 intercalary days (divisible by 384).
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // ─── N A M E   A R R A Y S  ──────────────────────────────────────
+            var monthNames = [
+                'Month 1',
+                'Month 2',
+                'Month 3',
+                'Month 4',
+                'Month 5',
+                'Month 6',
+                'Month 7',
+                'Month 8',
+                'Month 9',
+                'Month 10',
+                'Intercalary'
+            ];
+
+            var weekNames = [
+                'Week 1',
+                'Week 2',
+                'Week 3',
+                'Week 4',
+                'Week 5',
+                'Week 6'
+            ];
+
+            var dayNames = [
+                'Day 1',
+                'Day 2',
+                'Day 3',
+                'Day 4',
+                'Day 5',
+                'Day 6'
+            ];
+
+            // ─── O R D I N A L   S U F F I X  ──────────────────────────────
+            function ordinalSuffix(n) {
+                const rules = new Intl.PluralRules('en', { type: 'ordinal' });
+                const suffix = {
+                    'one': 'st',
+                    'two': 'nd',
+                    'few': 'rd',
+                    'other': 'th'
+                };
+                return suffix[rules.select(n)] || 'th';
+            }
+
+            // ─── C O R E   C A L E N D A R   F U N C T I O N S  ────────────
+
+            var EPOCH_JDN;
+
+            function isGregLeapYear(y) {
+                return (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0));
+            }
+
+            function daysInGregMonth(y, m) {
+                var days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+                if (m === 2 && isGregLeapYear(y)) return 29;
+                return days[m - 1];
+            }
+
+            function computeJDN(y, m, d) {
+                var a = Math.floor((14 - m) / 12);
+                var Y = y + 4800 - a;
+                var M = m + 12 * a - 3;
+                return d + Math.floor((153 * M + 2) / 5) + 365 * Y +
+                    Math.floor(Y / 4) - Math.floor(Y / 100) + Math.floor(Y / 400) - 32045;
+            }
+
+            function jdnToGregorian(jdn) {
+                var L = jdn + 68569;
+                var N = Math.floor((4 * L) / 146097);
+                L = L - Math.floor((146097 * N + 3) / 4);
+                var Y = Math.floor((4000 * (L + 1)) / 1461001);
+                L = L - Math.floor((1461 * Y) / 4) + 31;
+                var M = Math.floor((80 * L) / 2447);
+                var d = L - Math.floor((2447 * M) / 80);
+                L = Math.floor(M / 11);
+                M = M + 2 - 12 * L;
+                Y = 100 * (N - 49) + Y + L;
+                return { year: Y, month: M, day: d };
+            }
+
+            EPOCH_JDN = computeJDN(-662, 12, 20);
+
+            function gregorianToDays(y, m, d) {
+                return computeJDN(y, m, d) - EPOCH_JDN;
+            }
+
+            function daysToGregorian(days) {
+                return jdnToGregorian(EPOCH_JDN + days);
+            }
+
+            // ─── Y A C   H E L P E R S  ──────────────────────────────────────
+
+            function daysInYacYear(y) {
+                var intercalary = 6;
+                if (y % 4 === 0) intercalary -= 3;
+                if (y % 384 === 0) intercalary -= 3;
+                return 360 + intercalary;
+            }
+
+            function intercalaryDaysInYacYear(y) {
+                return daysInYacYear(y) - 360;
+            }
+
+            function yacToDays(y, m, w, d) {
+                var dayOffset, total = 0,
+                    i;
+                if (m >= 1 && m <= 10) {
+                    var ww = Math.max(1, Math.min(6, w || 1));
+                    var dd = Math.max(1, Math.min(6, d || 1));
+                    dayOffset = (m - 1) * 36 + (ww - 1) * 6 + (dd - 1);
+                } else {
+                    var dd = Math.max(1, d || 1);
+                    dayOffset = 360 + (dd - 1);
+                }
+                if (y >= 0) {
+                    for (i = 0; i < y; i++) total += daysInYacYear(i);
+                    total += dayOffset;
+                } else {
+                    for (i = y; i < 0; i++) total -= daysInYacYear(i);
+                    total += dayOffset;
+                }
+                return total;
+            }
+
+            function daysToYac(days) {
+                var y = 0,
+                    remaining = days,
+                    diy,
+                    regularDays = 360,
+                    intercalaryCount;
+                if (remaining >= 0) {
+                    while (remaining >= daysInYacYear(y)) {
+                        remaining -= daysInYacYear(y);
+                        y++;
+                    }
+                } else {
+                    while (remaining < 0) {
+                        y--;
+                        remaining += daysInYacYear(y);
+                    }
+                }
+                diy = daysInYacYear(y);
+                intercalaryCount = diy - 360;
+                if (remaining < regularDays) {
+                    var month = Math.floor(remaining / 36) + 1;
+                    var dayInMonth = remaining % 36;
+                    var week = Math.floor(dayInMonth / 6) + 1;
+                    var day = (dayInMonth % 6) + 1;
+                    return {
+                        year: y,
+                        month: month,
+                        week: week,
+                        day: day,
+                        isIntercalary: false,
+                        intercalaryCount: intercalaryCount
+                    };
+                } else {
+                    var intercalaryDay = remaining - regularDays + 1;
+                    return {
+                        year: y,
+                        month: 11,
+                        week: 0,
+                        day: intercalaryDay,
+                        isIntercalary: true,
+                        intercalaryCount: intercalaryCount
+                    };
+                }
+            }
+
+            // ─── E P O C H   &   R E M A I N D E R  (fixed) ──────────────
+
+            function getEpochInfo(year) {
+                // epoch = floor(year / 384) + 1  (as before)
+                var epoch = Math.floor(year / 384) + 1;
+                // year_in_epoch = ((year % 384) + 384) % 384 + 1  (1-indexed remainder)
+                var rem = ((year % 384) + 384) % 384;
+                var yearInEpoch = rem + 1; // always 1..384
+                return { epoch: epoch, yearInEpoch: yearInEpoch };
+            }
+
+            // ─── D O M   R E F S  ──────────────────────────────────────────
+
+            var gregYear = document.getElementById('greg-year');
+            var gregMonth = document.getElementById('greg-month');
+            var gregDay = document.getElementById('greg-day');
+
+            var yacYear = document.getElementById('yac-year');
+            var yacMonth = document.getElementById('yac-month');
+            var yacWeek = document.getElementById('yac-week');
+            var yacDay = document.getElementById('yac-day');
+            var yacWeekGroup = document.getElementById('yac-week-group');
+
+            var yacMonthName = document.getElementById('yac-month-name');
+            var yacWeekName = document.getElementById('yac-week-name');
+            var yacDayName = document.getElementById('yac-day-name');
+            var yacFullName = document.getElementById('yac-full-name');
+            var yacEpoch = document.getElementById('yac-epoch');
+            var yacYearInEpoch = document.getElementById('yac-year-in-epoch');
+
+            var yacIntercalaryNote = document.getElementById('yac-intercalary-note');
+            var yacZeroIntNote = document.getElementById('yac-zeroint-note');
+
+            var updating = false;
+
+            // ─── U I   H E L P E R S  ──────────────────────────────────────
+
+            function updateYacMonthUI() {
+                var m = parseInt(yacMonth.value, 10);
+                var y = parseInt(yacYear.value, 10) || 0;
+                var intCount = intercalaryDaysInYacYear(y);
+
+                if (m === 11) {
+                    yacWeekGroup.style.display = 'none';
+                    yacWeek.disabled = true;
+                    yacIntercalaryNote.style.display = '';
+                    yacDay.max = Math.max(1, intCount);
+                    yacDay.min = 1;
+                    if (intCount === 0) {
+                        yacZeroIntNote.style.display = '';
+                        yacDay.disabled = true;
+                        yacDay.value = 1;
+                    } else {
+                        yacZeroIntNote.style.display = 'none';
+                        yacDay.disabled = false;
+                        if (parseInt(yacDay.value, 10) > intCount) yacDay.value = intCount;
+                    }
+                } else {
+                    yacWeekGroup.style.display = '';
+                    yacWeek.disabled = false;
+                    yacIntercalaryNote.style.display = 'none';
+                    yacZeroIntNote.style.display = 'none';
+                    yacDay.max = 6;
+                    yacDay.min = 1;
+                    yacDay.disabled = false;
+                    yacWeek.max = 6;
+                    yacWeek.min = 1;
+                }
+
+                var opt11 = yacMonth.querySelector('option[value="11"]');
+                if (opt11) {
+                    opt11.disabled = (intCount === 0);
+                    if (intCount === 0 && m === 11) {
+                        yacMonth.value = '10';
+                        updateYacMonthUI();
+                    }
+                }
+
+                // Update all derived fields
+                updateYacDerivedFields();
+            }
+
+            function updateYacDerivedFields() {
+                var y = parseInt(yacYear.value, 10);
+                if (isNaN(y)) {
+                    yacEpoch.value = '—';
+                    yacYearInEpoch.value = '—';
+                    yacMonthName.value = '—';
+                    yacWeekName.value = '—';
+                    yacDayName.value = '—';
+                    yacFullName.value = '—';
+                    return;
+                }
+
+                var m = parseInt(yacMonth.value, 10);
+                var w = parseInt(yacWeek.value, 10) || 1;
+                var d = parseInt(yacDay.value, 10) || 1;
+                var intCount = intercalaryDaysInYacYear(y);
+
+                // --- Epoch & year-in-epoch (fixed) ---
+                var info = getEpochInfo(y);
+                yacEpoch.value = info.epoch + ordinalSuffix(info.epoch);
+                yacYearInEpoch.value = info.yearInEpoch;
+
+                // --- Names ---
+                // Month name
+                if (m >= 1 && m <= 11) {
+                    yacMonthName.value = monthNames[m - 1] || '?';
+                } else {
+                    yacMonthName.value = '—';
+                }
+
+                // Week & Day names
+                if (m === 11) {
+                    yacWeekName.value = '—';
+                    if (intCount > 0 && d >= 1 && d <= intCount) {
+                        yacDayName.value = 'Day ' + d;
+                    } else {
+                        yacDayName.value = '—';
+                    }
+                } else {
+                    if (w >= 1 && w <= 6) {
+                        yacWeekName.value = weekNames[w - 1] || '?';
+                    } else {
+                        yacWeekName.value = '—';
+                    }
+                    if (d >= 1 && d <= 6) {
+                        yacDayName.value = dayNames[d - 1] || '?';
+                    } else {
+                        yacDayName.value = '—';
+                    }
+                }
+
+                // --- Full name ---
+                var dayName = yacDayName.value;
+                var weekName = yacWeekName.value;
+                var monthName = yacMonthName.value;
+                var yearStr = y;
+
+                if (m === 11) {
+                    yacFullName.value = dayName + ' of ' + monthName + ', Year ' + yearStr;
+                } else {
+                    yacFullName.value = dayName + ' of ' + weekName + ', ' + monthName + ' of Year ' + yearStr;
+                }
+            }
+
+            function setGregorianFields(y, m, d) {
+                gregYear.value = y;
+                gregMonth.value = m;
+                gregDay.value = d;
+                gregDay.max = daysInGregMonth(y, m);
+                if (parseInt(gregDay.value, 10) > gregDay.max) gregDay.value = gregDay.max;
+                if (parseInt(gregDay.value, 10) < 1) gregDay.value = 1;
+            }
+
+            function setYacFields(result) {
+                yacYear.value = result.year;
+                if (result.isIntercalary) {
+                    yacMonth.value = '11';
+                    yacWeek.value = 1;
+                    yacDay.value = result.day;
+                } else {
+                    yacMonth.value = result.month;
+                    yacWeek.value = result.week;
+                    yacDay.value = result.day;
+                }
+                updateYacMonthUI();
+            }
+
+            function getGregorianInput() {
+                var y = parseInt(gregYear.value, 10);
+                var m = parseInt(gregMonth.value, 10);
+                var d = parseInt(gregDay.value, 10);
+                if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
+                if (m < 1 || m > 12) return null;
+                var maxD = daysInGregMonth(y, m);
+                if (d < 1 || d > maxD) return null;
+                return { year: y, month: m, day: d };
+            }
+
+            function getYacInput() {
+                var y = parseInt(yacYear.value, 10);
+                var m = parseInt(yacMonth.value, 10);
+                var w = parseInt(yacWeek.value, 10) || 1;
+                var d = parseInt(yacDay.value, 10);
+                if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
+                if (m < 1 || m > 11) return null;
+                if (m === 11) {
+                    var intCount = intercalaryDaysInYacYear(y);
+                    if (intCount === 0) return null;
+                    if (d < 1 || d > intCount) return null;
+                    return { year: y, month: m, week: 0, day: d };
+                } else {
+                    if (m < 1 || m > 10) return null;
+                    if (w < 1 || w > 6) return null;
+                    if (d < 1 || d > 6) return null;
+                    return { year: y, month: m, week: w, day: d };
+                }
+            }
+
+            // ─── C O N V E R S I O N   F U N C T I O N S  ──────────────────
+
+            function convertGregorianToYac() {
+                if (updating) return;
+                var g = getGregorianInput();
+                if (!g) return;
+                var days = gregorianToDays(g.year, g.month, g.day);
+                var yacResult = daysToYac(days);
+                updating = true;
+                setYacFields(yacResult);
+                updating = false;
+            }
+
+            function convertYacToGregorian() {
+                if (updating) return;
+                var y = getYacInput();
+                if (!y) return;
+                var days = yacToDays(y.year, y.month, y.week, y.day);
+                var g = daysToGregorian(days);
+                updating = true;
+                setGregorianFields(g.year, g.month, g.day);
+                updating = false;
+            }
+
+            function handleGregorianChange() {
+                var y = parseInt(gregYear.value, 10);
+                var m = parseInt(gregMonth.value, 10);
+                if (!isNaN(y) && !isNaN(m)) {
+                    gregDay.max = daysInGregMonth(y, m);
+                    if (parseInt(gregDay.value, 10) > gregDay.max) gregDay.value = gregDay.max;
+                }
+                convertGregorianToYac();
+            }
+
+            function handleYacChange() {
+                updateYacMonthUI();
+                convertYacToGregorian();
+            }
+
+            // ─── A T T A C H   L I S T E N E R S  ──────────────────────────
+
+            gregYear.addEventListener('input', handleGregorianChange);
+            gregMonth.addEventListener('change', handleGregorianChange);
+            gregDay.addEventListener('input', handleGregorianChange);
+
+            yacYear.addEventListener('input', function() {
+                updateYacMonthUI();
+                convertYacToGregorian();
+            });
+            yacMonth.addEventListener('change', function() {
+                updateYacMonthUI();
+                convertYacToGregorian();
+            });
+            yacWeek.addEventListener('input', function() {
+                updateYacDerivedFields();
+                convertYacToGregorian();
+            });
+            yacDay.addEventListener('input', function() {
+                updateYacDerivedFields();
+                convertYacToGregorian();
+            });
+
+            // ─── I N I T I A L I Z E  ──────────────────────────────────────
+
+            (function initialize() {
+                updating = true;
+                var now = new Date();
+                setGregorianFields(now.getFullYear(), now.getMonth() + 1, now.getDate());
+                var g = getGregorianInput();
+                if (g) {
+                    var days = gregorianToDays(g.year, g.month, g.day);
+                    var yacResult = daysToYac(days);
+                    setYacFields(yacResult);
+                }
+                updating = false;
+            })();
+
+        });
+    </script>
 </body>
 </html>
